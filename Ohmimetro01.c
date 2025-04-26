@@ -15,7 +15,7 @@
 #define I2C_SDA 14
 #define I2C_SCL 15
 #define endereco 0x3C
-#define ADC_PIN 28          // GPIO para o voltímetro
+#define ADC_PIN 28          // GPIO para o ADC
 #define WS2812_PIN 7        // GPIO para a matriz de LEDs
 #define BUTTON_A 5          // GPIO para botão A
 #define BUTTON_B 6          // GPIO para botão B
@@ -101,11 +101,6 @@ int main() {
 
     const char *faixa1, *faixa2, *mult;
     gera_faixa_cores(R_x, &faixa1, &faixa2, &mult);
-
-    printf("ADC: %1.0f\n", media);
-    printf("R_x: %1.0f\n", R_x);
-    printf("R_conhecido: %d\n", R_conhecido);
-    printf("Valor comercial mais próximo: %1.1f\n", valor_comercial);
 
     if (tela == 0) {
       ssd1306_fill(&ssd, !cor);
@@ -232,16 +227,20 @@ float encontrar_valor_comercial(float resistor) {
 }
 
 
-// Trecho para modo BOOTSEL com botão B
+/**
+ * @brief Manipulador de interrupção para os botões A e B.
+ * 
+ * @param gpio O número do GPIO que gerou a interrupção.
+ * @param events Eventos associados à interrupção.
+ */
 void btn_irq_handler(uint gpio, uint32_t events) {
   if (gpio == BUTTON_A) {
     tela = !tela; // Alterna entre as telas
     return;
   } else if (gpio == BUTTON_B) {
     reset_usb_boot(0, 0);
+    return;
   }
-
-  return;
 }
 
 
