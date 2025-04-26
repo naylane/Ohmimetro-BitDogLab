@@ -24,6 +24,9 @@ int R_conhecido = 10000;    // Resistor de 10k ohm
 float R_x = 0.0;            // Resistor desconhecido
 int ADC_RESOLUTION = 4095;  // Resolução do ADC (12 bits)
 ssd1306_t ssd;              // Estrutura do display
+bool cor = true;
+bool tela = 1;
+const char *faixa1, *faixa2, *mult;
 
 // Valores comerciais E24 (5% de tolerância)
 float baseE24[] = {
@@ -55,6 +58,7 @@ void setup_display();
 int main() {
   setup_button(BUTTON_A);
   setup_button(BUTTON_B);
+  gpio_set_irq_enabled_with_callback(BUTTON_A, GPIO_IRQ_EDGE_FALL, true, &btn_irq_handler);
   gpio_set_irq_enabled_with_callback(BUTTON_B, GPIO_IRQ_EDGE_FALL, true, &btn_irq_handler);
 
   setup_display();
@@ -74,7 +78,6 @@ int main() {
   char str_y[5]; // Buffer para armazenar a string
   char str_e24[5];
 
-  bool cor = true;
   while (true) {
     adc_select_input(2); // Seleciona o ADC para eixo X. O pino 28 como entrada analógica
 
@@ -92,39 +95,41 @@ int main() {
     R_x = (R_conhecido * media) / (ADC_RESOLUTION - media);
     float valor_comercial = encontrar_valor_comercial(R_x);
 
-    sprintf(str_x, "%1.0f", media); // Converte o inteiro em string
-    sprintf(str_y, "%1.0f", R_x);   // Converte o float em string
+    sprintf(str_x, "%1.0f", media);
+    sprintf(str_y, "%1.0f", R_x);
     sprintf(str_e24, "%1.0f", valor_comercial);
 
     const char *faixa1, *faixa2, *mult;
-    gera_faixa_cores(R_x, &faixa1, &faixa2, &mult);     // Gera as faixas de cores
+    gera_faixa_cores(R_x, &faixa1, &faixa2, &mult);
 
     printf("ADC: %1.0f\n", media);
     printf("R_x: %1.0f\n", R_x);
     printf("R_conhecido: %d\n", R_conhecido);
     printf("Valor comercial mais próximo: %1.1f\n", valor_comercial);
 
-    //  Atualiza o conteúdo do display com animações
-    ssd1306_fill(&ssd, !cor);                          // Limpa o display
-    ssd1306_rect(&ssd, 3, 3, 122, 60, cor, !cor);      // Desenha um retângulo
-    ssd1306_draw_string(&ssd, "ADC", 13, 6);
-    ssd1306_draw_string(&ssd, "Resisten.", 50, 6);
-    ssd1306_line(&ssd, 44, 5, 44, 25, cor);            // linha do meio
-    ssd1306_draw_string(&ssd, str_x, 8, 15);           // ADC
-    ssd1306_draw_string(&ssd, str_y, 59, 15);          // RESISTENCIA
-    ssd1306_line(&ssd, 3, 25, 123, 25, cor);           // linha inferior
-    ssd1306_draw_string(&ssd, "E42:", 8, 30);
-    ssd1306_draw_string(&ssd, str_e24, 44, 30);        // E24
-
+    if (tela == 0) {
+      ssd1306_fill(&ssd, !cor);
+      ssd1306_rect(&ssd, 3, 3, 122, 60, cor, !cor);      // Borda
+      ssd1306_draw_string(&ssd, "ADC", 13, 6);
+      ssd1306_draw_string(&ssd, "Resisten.", 50, 6);
+      ssd1306_line(&ssd, 44, 5, 44, 25, cor);            // linha do meio
+      ssd1306_draw_string(&ssd, str_x, 8, 15);           // valor do adc
+      ssd1306_draw_string(&ssd, str_y, 59, 15);          // valor do resistor
+      ssd1306_line(&ssd, 3, 25, 123, 25, cor);           // linha inferior
+      ssd1306_draw_string(&ssd, "E42:", 8, 30);
+      ssd1306_draw_string(&ssd, str_e24, 44, 30);        // valor comercial
+  } else {
+      ssd1306_fill(&ssd, !cor);
+      ssd1306_rect(&ssd, 4, 30, 70, 8, cor, !cor);       // Resistor
+      ssd1306_line(&ssd, 4, 7, 30, 7, cor);              // linha direita
+      ssd1306_line(&ssd, 100, 7, 125, 7, cor);           // linha esquerda
+      ssd1306_draw_string(&ssd, faixa1, 8, 25);          // 1ª faixa
+      ssd1306_draw_string(&ssd, faixa2, 8, 35);          // 2ª faixa
+      ssd1306_draw_string(&ssd, mult, 8, 45);            // multiplicador
+   }
     
-    ssd1306_rect(&ssd, 45, 10, 80, 10, cor, !cor);     // Resistor
-    //ssd1306_line(&ssd, 5, 50, 120, 50, cor);
+    ssd1306_send_data(&ssd);
 
-    //ssd1306_draw_string(&ssd, faixa1, 8, 50);
-    //ssd1306_draw_string(&ssd, faixa2, 16, 50);          // Desenha a 2ª faixa
-    //ssd1306_draw_string(&ssd, mult, 28, 50);            // Desenha o multiplicador
-
-    ssd1306_send_data(&ssd);                           // Atualiza o display
     sleep_ms(700);
   }
 }
@@ -229,7 +234,14 @@ float encontrar_valor_comercial(float resistor) {
 
 // Trecho para modo BOOTSEL com botão B
 void btn_irq_handler(uint gpio, uint32_t events) {
-  reset_usb_boot(0, 0);
+  if (gpio == BUTTON_A) {
+    tela = !tela; // Alterna entre as telas
+    return;
+  } else if (gpio == BUTTON_B) {
+    reset_usb_boot(0, 0);
+  }
+
+  return;
 }
 
 

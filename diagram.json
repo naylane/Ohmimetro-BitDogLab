@@ -37,9 +37,9 @@
     {
       "type": "wokwi-pushbutton",
       "id": "btn2",
-      "top": 6.2,
+      "top": 15.8,
       "left": -153.6,
-      "attrs": { "color": "green" }
+      "attrs": { "color": "grey" }
     },
     {
       "type": "wokwi-resistor",
@@ -61,7 +61,7 @@
       "type": "wokwi-text",
       "id": "text1",
       "top": -48,
-      "left": 144,
+      "left": 163.2,
       "attrs": { "text": "Até 6,6V" }
     },
     {
@@ -74,9 +74,23 @@
     {
       "type": "wokwi-text",
       "id": "text3",
-      "top": -19.2,
-      "left": -134.4,
-      "attrs": { "text": "PB B" }
+      "top": -28.8,
+      "left": -201.6,
+      "attrs": { "text": "BTN A" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": -32.2,
+      "left": -153.6,
+      "attrs": { "color": "grey", "xray": "1" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "text4",
+      "top": 28.8,
+      "left": -201.6,
+      "attrs": { "text": "BTN B" }
     }
   ],
   "connections": [
@@ -86,10 +100,12 @@
     [ "oled1:SCL", "pico:GP15", "magenta", [ "v-28.8", "h0.3" ] ],
     [ "vcc1:VCC", "oled1:VCC", "red", [ "h76.8", "v48" ] ],
     [ "oled1:GND", "gnd1:GND", "black", [ "v-38.4", "h-57.6" ] ],
-    [ "btn2:1.r", "pico:GP6", "limegreen", [ "v0" ] ],
+    [ "btn2:1.r", "pico:GP6", "limegreen", [ "h38.6", "v-9.6" ] ],
     [ "btn2:2.r", "pico:GND.3", "black", [ "h38.6", "v19.4" ] ],
     [ "pico:GP28", "bb1:11b.j", "blue", [ "h0" ] ],
     [ "pico:GND.6", "bb1:17b.j", "black", [ "h0" ] ],
+    [ "pico:GP5", "btn1:1.r", "green", [ "h-19.2", "v-9.6", "h-153.8" ] ],
+    [ "pico:GND.2", "btn1:2.r", "black", [ "h-67.2", "v-48.2" ] ],
     [ "r1:1", "bb1:11b.i", "", [ "$bb" ] ],
     [ "r1:2", "bb1:17b.i", "", [ "$bb" ] ],
     [ "r2:1", "bb1:5b.h", "", [ "$bb" ] ],
