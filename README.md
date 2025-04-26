@@ -1,12 +1,44 @@
-# Interface Homem-Máquina com Display OLED - RP2040 (BitDogLab)
+<div>
+    <img src="./img\embarcatech_logo.png" alt="Logo Embarcatech" height="90">
+    <img align="right" src="./img\cepedi_logo.png" alt="Logo Embarcatech" height="90">
+</div>
 
-# Descrição
+<h2 align="center"> Ohmimetro na BitDogLab </h2>
+<h5 align="center"> Atividade promovida pela Residência (fase 2) do programa EmbarcaTech. </h5>
 
-Este projeto foi desenvolvido a placa BitDogLab. Tem como objetivo criar uma interface homem-máquina (IHM) utilizando um display OLED modelo "SSD1306" (resolução 128x64 pixels).
+<br>
 
-A aplicação exibe informações em tempo real dos potenciômetros do joystick, como a leitura dos eixos X e Y. Também exibe o estado dos botões físicos e do botão do joystick. As informações são mostradas de forma organizada no display OLED via interface I2C, objetivando
-o estudo/aprendizado das funções da biblioteca do display.
+## Sobre o projeto
+Sobre o projeto. A descrição completa do projeto pode ser encontrada na [Documentação](docs\TrabalhoSE_FSA_1_Naylane_Ribeiro.pdf).
 
-Observação.
-- Implementação do modo BOOTSEL por botão externo (Botão B - GPIO 6). Isto facilita a gravação no desenvolvimento do programa. Quando o projeto for finalizado, deve-se retirar
-esta função.
+<br>
+
+## Tecnologias e Ferramentas utilizadas
+- **Kit BitDogLab**
+- **Jumpers**: MxM e MxF
+- **Resistores**: 1/4W
+- **Linguagem de programação:** C
+- **Ambiente de Desenvolvimento:** Visual Studio Code
+
+<br>
+
+## Instruções de uso
+- É necessário instalar o SDK da Raspberry Pi Pico e realizar as configurações iniciais. [1]
+
+Para ter acesso ao projeto, clone o repositório disponível na [plataforma GitHub](https://github.com/naylane/BitCrtl).
+
+Após clonar o repositório, no terminal, navegue até a pasta do projeto e execute os comandos:
+```bash
+mkdir build && cd build
+cmake ..
+make
+```
+
+<br>
+
+## Desenvolvedora:
+<table>
+  <tr>
+    <td align="center"><img style="" src="https://avatars.githubusercontent.com/u/89545660?v=4" width="100px;" ><br /> <sub> <b> Naylane Ribeiro </b> </sub>
+    </td>
+</table>
