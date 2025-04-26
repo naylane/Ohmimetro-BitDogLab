@@ -4,14 +4,18 @@
 #include "pico/bootrom.h"
 #include "hardware/adc.h"
 #include "hardware/i2c.h"
+#include "hardware/pio.h"
 #include "lib/ssd1306.h"
 #include "lib/font.h"
+#include "lib/WS2812.h"
+#include "WS2812.pio.h"
 
 #define I2C_PORT i2c1
 #define I2C_SDA 14
 #define I2C_SCL 15
 #define endereco 0x3C
 #define ADC_PIN 28          // GPIO para o voltímetro
+#define WS2812_PIN 7        // GPIO para a matriz de LEDs
 #define BUTTON_A 5          // GPIO para botão A
 #define BUTTON_B 6          // GPIO para botão B
 
@@ -20,6 +24,13 @@ float R_x = 0.0;            // Resistor desconhecido
 float ADC_VREF = 3.31;      // Tensão de referência do ADC
 int ADC_RESOLUTION = 4095;  // Resolução do ADC (12 bits)
 ssd1306_t ssd;              // Estrutura do display
+
+// Valores comerciais E24 (5% de tolerância)
+float baseE24[] = {
+  1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0,
+  2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3,
+  4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1
+};
 
 void btn_irq_handler(uint gpio, uint32_t events);
 void setup_button(uint pin);
@@ -35,6 +46,14 @@ int main() {
 
   adc_init();
   adc_gpio_init(ADC_PIN); // GPIO 28 como entrada analógica
+
+  
+  // Inicializa o PIO para controlar a matriz de LEDs (WS2812)
+  PIO pio = pio0;
+  uint sm = 0;
+  uint offset = pio_add_program(pio, &pio_matrix_program);
+  pio_matrix_program_init(pio, sm, offset, WS2812_PIN);
+
 
   char str_x[5]; // Buffer para armazenar a string
   char str_y[5]; // Buffer para armazenar a string
