@@ -25,16 +25,17 @@ void btn_irq_handler(uint gpio, uint32_t events);
 void setup_button(uint pin);
 void setup_display();
 
+
 int main() {
   setup_button(BUTTON_A);
   setup_button(BUTTON_B);
   gpio_set_irq_enabled_with_callback(BUTTON_B, GPIO_IRQ_EDGE_FALL, true, &btn_irq_handler);
 
+  setup_display();
 
   adc_init();
   adc_gpio_init(ADC_PIN); // GPIO 28 como entrada analógica
 
-  float tensao;
   char str_x[5]; // Buffer para armazenar a string
   char str_y[5]; // Buffer para armazenar a string
 
@@ -42,12 +43,12 @@ int main() {
   while (true) {
     adc_select_input(2); // Seleciona o ADC para eixo X. O pino 28 como entrada analógica
 
-    float soma = 0.0f;
+    float soma_tensao = 0.0f;
     for (int i = 0; i < 500; i++) {
-      soma += adc_read();
+      soma_tensao += adc_read();
       sleep_ms(1);
     }
-    float media = soma / 500.0f;
+    float media = soma_tensao / 500.0f;
     //float media = 500;
 
     // Fórmula simplificada: R_x = R_conhecido * ADC_encontrado /(ADC_RESOLUTION - adc_encontrado)
@@ -85,8 +86,9 @@ void btn_irq_handler(uint gpio, uint32_t events) {
   reset_usb_boot(0, 0);
 }
 
+
 /**
- * @brief Configura push button como saída e com pull-up.
+ * @brief Configura push button como saída com pull-up.
  * 
  * @param pin o pino do push button.
  */
@@ -96,23 +98,22 @@ void setup_button(uint pin) {
   gpio_pull_up(pin);
 }
 
+
 /**
  * @brief Configura Display ssd1306 via I2C, iniciando com todos os pixels desligados.
 */
 void setup_display() {
-  // I2C Initialisation. Using it at 400Khz.
+  // Inicialização do I2C a 400Khz
   i2c_init(I2C_PORT, 400 * 1000);
 
-  gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);                    // Set the GPIO pin function to I2C
-  gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);                    // Set the GPIO pin function to I2C
-  gpio_pull_up(I2C_SDA);                                        // Pull up the data line
-  gpio_pull_up(I2C_SCL);                                        // Pull up the clock line
+  gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
+  gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+  gpio_pull_up(I2C_SDA);
+  gpio_pull_up(I2C_SCL);
   
   // Configura o display
   ssd1306_init(&ssd, WIDTH, HEIGHT, false, endereco, I2C_PORT); 
-  ssd1306_config(&ssd);                                         
-  ssd1306_send_data(&ssd);                                      
-  // Limpa o display. O display inicia com todos os pixels apagados.
-  ssd1306_fill(&ssd, false);
+  ssd1306_config(&ssd);  
+  ssd1306_fill(&ssd, false);                                       
   ssd1306_send_data(&ssd);
 }
