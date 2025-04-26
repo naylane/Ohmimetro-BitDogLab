@@ -32,6 +32,20 @@ float baseE24[] = {
   4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1
 };
 
+const char* cores[] = {
+  "Preto",   // 0
+  "Marrom",  // 1
+  "Vermelho",// 2
+  "Laranja", // 3
+  "Amarelo", // 4
+  "Verde",   // 5
+  "Azul",    // 6
+  "Roxo",    // 7
+  "Cinza",   // 8
+  "Branco"   // 9
+};
+
+void gera_faixa_cores(int resistor, const char** faixa1, const char** faixa2, const char** mult);
 float encontrar_valor_comercial(float resistor);
 void btn_irq_handler(uint gpio, uint32_t events);
 void setup_button(uint pin);
@@ -82,38 +96,103 @@ int main() {
     sprintf(str_y, "%1.0f", R_x);   // Converte o float em string
     sprintf(str_e24, "%1.0f", valor_comercial);
 
+    const char *faixa1, *faixa2, *mult;
+    gera_faixa_cores(R_x, &faixa1, &faixa2, &mult);     // Gera as faixas de cores
+
     printf("ADC: %1.0f\n", media);
     printf("R_x: %1.0f\n", R_x);
     printf("R_conhecido: %d\n", R_conhecido);
     printf("Valor comercial mais próximo: %1.1f\n", valor_comercial);
 
-    // cor = !cor;
     //  Atualiza o conteúdo do display com animações
     ssd1306_fill(&ssd, !cor);                          // Limpa o display
     ssd1306_rect(&ssd, 3, 3, 122, 60, cor, !cor);      // Desenha um retângulo
     ssd1306_draw_string(&ssd, "ADC", 13, 6);
     ssd1306_draw_string(&ssd, "Resisten.", 50, 6);
-    ssd1306_line(&ssd, 44, 5, 44, 25, cor);           // linha do meio
+    ssd1306_line(&ssd, 44, 5, 44, 25, cor);            // linha do meio
     ssd1306_draw_string(&ssd, str_x, 8, 15);           // ADC
     ssd1306_draw_string(&ssd, str_y, 59, 15);          // RESISTENCIA
     ssd1306_line(&ssd, 3, 25, 123, 25, cor);           // linha inferior
-    ssd1306_draw_string(&ssd, "E42", 8, 30);
-    ssd1306_draw_string(&ssd, str_e24, 8, 40);         // E24
+    ssd1306_draw_string(&ssd, "E42:", 8, 30);
+    ssd1306_draw_string(&ssd, str_e24, 44, 30);        // E24
 
-    /*
-    ssd1306_line(&ssd, 3, 37, 123, 37, cor);           // Desenha uma linha
-    ssd1306_draw_string(&ssd, "CEPEDI   TIC37", 8, 6); // Desenha uma string
-    ssd1306_draw_string(&ssd, "EMBARCATECH", 20, 16);  // Desenha uma string
-    ssd1306_draw_string(&ssd, "  Ohmimetro", 10, 28);  // Desenha uma string
-    ssd1306_draw_string(&ssd, "ADC", 13, 41);          // Desenha uma string
-    ssd1306_draw_string(&ssd, "Resisten.", 50, 41);    // Desenha uma string
-    ssd1306_line(&ssd, 44, 37, 44, 60, cor);           // Desenha uma linha vertical
-    ssd1306_draw_string(&ssd, str_x, 8, 52);           // Desenha uma string
-    ssd1306_draw_string(&ssd, str_y, 59, 52);          // Desenha uma string
-    */
+    
+    ssd1306_rect(&ssd, 45, 10, 80, 10, cor, !cor);     // Resistor
+    //ssd1306_line(&ssd, 5, 50, 120, 50, cor);
+
+    //ssd1306_draw_string(&ssd, faixa1, 8, 50);
+    //ssd1306_draw_string(&ssd, faixa2, 16, 50);          // Desenha a 2ª faixa
+    //ssd1306_draw_string(&ssd, mult, 28, 50);            // Desenha o multiplicador
+
     ssd1306_send_data(&ssd);                           // Atualiza o display
     sleep_ms(700);
   }
+}
+
+
+/**
+ * @brief Determina as 3 primeiras faixas de cor (1ª, 2ª e multiplicador)
+ *        para um resistor com valor comercial informado em ohms.
+ * 
+ * @param resistor Valor do resistor (em ohms). Assumindo que ele tenha pelo menos 2 dígitos.
+ * @param faixa1 Ponteiro para armazenar a string da 1ª faixa.
+ * @param faixa2 Ponteiro para armazenar a string da 2ª faixa.
+ * @param mult Ponteiro para armazenar a string do multiplicador.
+ */
+void gera_faixa_cores(int resistor, const char** faixa1, const char** faixa2, const char** mult) {
+    // 1. Contar quantos dígitos tem o valor do resistor.
+    int n = 0;
+    int temp = resistor;
+    while (temp > 0) {
+        n++;
+        temp /= 10;
+    }
+    // Ao final, n contém o número total de dígitos de 'resistor'.
+
+    // 2. Definir o expoente do multiplicador.
+    // A ideia é representar o resistor como: <dígitos significativos> x 10^expoente.
+    // Queremos duas casas significativas, logo expoente = n - 2.
+    int expoente = n - 2;
+    if (expoente < 0) {  // Se o resistor tiver apenas 1 dígito, ajusta o expoente para 0.
+        expoente = 0;
+    }
+
+    // 3. Calcular o divisor que nos ajudará a isolar as duas primeiras cifras.
+    int divisor = 1;
+    for (int i = 0; i < expoente; i++) {
+        divisor *= 10;
+    }
+
+    // 4. Calcular os dois dígitos significativos (o "significand"):
+    // Divide o resistor pelo divisor e arredonda para o inteiro mais próximo.
+    int significand = (int)((float)resistor / divisor + 0.5f);
+
+    // 5. Se o arredondamento fizer o significand chegar a 100 (por exemplo, 99,6 arredonda para 100),
+    // então precisamos ajustar: usamos apenas duas casas → 100 torna-se 10 e incrementamos o expoente.
+    if (significand >= 100) {
+        significand /= 10;
+        expoente++;
+    }
+
+    // 6. Separar o significand em dois dígitos:
+    // Por exemplo, se significand for 91, então:
+    //     primeiro dígito = 9 e segundo dígito = 1.
+    int firstDigit = significand / 10;
+    int secondDigit = significand % 10;
+
+    // 7. Atribuir as cores correspondentes:
+    // A 1ª faixa corresponde ao primeiro dígito.
+    *faixa1 = cores[firstDigit];
+    // A 2ª faixa corresponde ao segundo dígito.
+    *faixa2 = cores[secondDigit];
+
+    // 8. A faixa do multiplicador é dada pelo expoente (já que o multiplicador equivale a 10^expoente).
+    // Verifica se o expoente está dentro do intervalo suportado (0 a 9, pois nossa tabela possui 10 cores).
+    if (expoente < 0 || expoente > 9) {
+      *mult = "Inválido";  // Caso esteja fora dos limites
+    } else {
+      *mult = cores[expoente];
+    }
 }
 
 
