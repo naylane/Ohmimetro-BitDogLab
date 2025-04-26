@@ -6,37 +6,27 @@
 #include "hardware/i2c.h"
 #include "lib/ssd1306.h"
 #include "lib/font.h"
+
 #define I2C_PORT i2c1
 #define I2C_SDA 14
 #define I2C_SCL 15
 #define endereco 0x3C
-#define ADC_PIN 28 // GPIO para o voltímetro
-#define Botao_A 5  // GPIO para botão A
-#define BUTTON_B 6 // GPIO para botão B
+#define ADC_PIN 28          // GPIO para o voltímetro
+#define BUTTON_A 5          // GPIO para botão A
+#define BUTTON_B 6          // GPIO para botão B
 
-int R_conhecido = 10000;   // Resistor de 10k ohm
-float R_x = 0.0;           // Resistor desconhecido
-float ADC_VREF = 3.31;     // Tensão de referência do ADC
-int ADC_RESOLUTION = 4095; // Resolução do ADC (12 bits)
+int R_conhecido = 10000;    // Resistor de 10k ohm
+float R_x = 0.0;            // Resistor desconhecido
+float ADC_VREF = 3.31;      // Tensão de referência do ADC
+int ADC_RESOLUTION = 4095;  // Resolução do ADC (12 bits)
 
-// Trecho para modo BOOTSEL com botão B
-
-
-void gpio_irq_handler(uint gpio, uint32_t events) {
-  reset_usb_boot(0, 0);
-}
+void btn_irq_handler(uint gpio, uint32_t events);
+void setup_button(uint pin);
 
 int main() {
-  // Para ser utilizado o modo BOOTSEL com botão B
-  gpio_init(BUTTON_B);
-  gpio_set_dir(BUTTON_B, GPIO_IN);
-  gpio_pull_up(BUTTON_B);
-  gpio_set_irq_enabled_with_callback(BUTTON_B, GPIO_IRQ_EDGE_FALL, true, &gpio_irq_handler);
-  // Aqui termina o trecho para modo BOOTSEL com botão B
-
-  gpio_init(Botao_A);
-  gpio_set_dir(Botao_A, GPIO_IN);
-  gpio_pull_up(Botao_A);
+  setup_button(BUTTON_A);
+  setup_button(BUTTON_B);
+  gpio_set_irq_enabled_with_callback(BUTTON_B, GPIO_IRQ_EDGE_FALL, true, &btn_irq_handler);
 
   // I2C Initialisation. Using it at 400Khz.
   i2c_init(I2C_PORT, 400 * 1000);
@@ -100,4 +90,21 @@ int main() {
     ssd1306_send_data(&ssd);                           // Atualiza o display
     sleep_ms(700);
   }
+}
+
+
+// Trecho para modo BOOTSEL com botão B
+void btn_irq_handler(uint gpio, uint32_t events) {
+  reset_usb_boot(0, 0);
+}
+
+/**
+ * @brief Configura push button como saída e com pull-up.
+ * 
+ * @param pin o pino do push button.
+ */
+void setup_button(uint pin) {
+  gpio_init(pin);
+  gpio_set_dir(pin, GPIO_IN);
+  gpio_pull_up(pin);
 }
