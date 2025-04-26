@@ -9,6 +9,7 @@
 #include "lib/font.h"
 #include "lib/WS2812.h"
 #include "WS2812.pio.h"
+#include <math.h>
 
 #define I2C_PORT i2c1
 #define I2C_SDA 14
@@ -21,7 +22,6 @@
 
 int R_conhecido = 10000;    // Resistor de 10k ohm
 float R_x = 0.0;            // Resistor desconhecido
-float ADC_VREF = 3.31;      // Tensão de referência do ADC
 int ADC_RESOLUTION = 4095;  // Resolução do ADC (12 bits)
 ssd1306_t ssd;              // Estrutura do display
 
@@ -32,6 +32,7 @@ float baseE24[] = {
   4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1
 };
 
+float encontrar_valor_comercial(float resistor);
 void btn_irq_handler(uint gpio, uint32_t events);
 void setup_button(uint pin);
 void setup_display();
@@ -57,6 +58,7 @@ int main() {
 
   char str_x[5]; // Buffer para armazenar a string
   char str_y[5]; // Buffer para armazenar a string
+  char str_e24[5];
 
   bool cor = true;
   while (true) {
@@ -67,18 +69,21 @@ int main() {
       soma_tensao += adc_read();
       sleep_ms(1);
     }
+    soma_tensao = 3000;
     float media = soma_tensao / 500.0f;
-    //float media = 500;
 
     // Fórmula simplificada: R_x = R_conhecido * ADC_encontrado /(ADC_RESOLUTION - adc_encontrado)
     R_x = (R_conhecido * media) / (ADC_RESOLUTION - media);
+    float valor_comercial = encontrar_valor_comercial(R_x);
 
     sprintf(str_x, "%1.0f", media); // Converte o inteiro em string
     sprintf(str_y, "%1.0f", R_x);   // Converte o float em string
-    
+    sprintf(str_e24, "%1.0f", valor_comercial);
+
     printf("ADC: %1.0f\n", media);
     printf("R_x: %1.0f\n", R_x);
     printf("R_conhecido: %d\n", R_conhecido);
+    printf("Valor comercial mais próximo: %1.1f\n", valor_comercial);
 
     // cor = !cor;
     //  Atualiza o conteúdo do display com animações
@@ -95,8 +100,41 @@ int main() {
     ssd1306_draw_string(&ssd, str_x, 8, 52);           // Desenha uma string
     ssd1306_draw_string(&ssd, str_y, 59, 52);          // Desenha uma string
     ssd1306_send_data(&ssd);                           // Atualiza o display
+
+    /*
+    ssd1306_rect(&ssd, 3, 3, 122, 60, cor, !cor);      // Desenha um retângulo
+    ssd1306_draw_string(&ssd, "Ohmimetro", 8, 6);
+    ssd1306_draw_string(&ssd, "ADC", 13, 41);
+    ssd1306_draw_string(&ssd, "Resisten.", 50, 41);
+    ssd1306_line(&ssd, 44, 37, 44, 60, cor);         // Desenha uma linha vertical
+    ssd1306_draw_string(&ssd, str_x, 8, 25);           // Desenha uma string
+    ssd1306_draw_string(&ssd, str_y, 59, 52);          // Desenha uma string
+    ssd1306_draw_string(&ssd, str_e24, 8, 6);          // Desenha uma string
+    */
     sleep_ms(700);
   }
+}
+
+
+/**
+ * @brief Encontra o valor comercial mais próximo na série E24.
+ * 
+ * @param resistor Valor do resistor a ser comparado.
+ * @return float Valor comercial mais próximo.
+ */
+float encontrar_valor_comercial(float resistor) {
+  float valor_proximo = baseE24[0];
+  float menor_diferenca = fabs(resistor - baseE24[0]);
+
+  for (int i = 1; i < sizeof(baseE24) / sizeof(baseE24[0]); i++) {
+      float diferenca = fabs(resistor - baseE24[i]);
+      if (diferenca < menor_diferenca) {
+          menor_diferenca = diferenca;
+          valor_proximo = baseE24[i];
+      }
+  }
+
+  return valor_proximo;
 }
 
 
