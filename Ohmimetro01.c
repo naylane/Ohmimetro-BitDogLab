@@ -64,13 +64,15 @@ int main() {
   while (true) {
     adc_select_input(2); // Seleciona o ADC para eixo X. O pino 28 como entrada analógica
 
+    /*
     float soma_tensao = 0.0f;
     for (int i = 0; i < 500; i++) {
       soma_tensao += adc_read();
       sleep_ms(1);
     }
-    soma_tensao = 3000;
     float media = soma_tensao / 500.0f;
+    */
+    float media = 2048.0f;
 
     // Fórmula simplificada: R_x = R_conhecido * ADC_encontrado /(ADC_RESOLUTION - adc_encontrado)
     R_x = (R_conhecido * media) / (ADC_RESOLUTION - media);
@@ -89,7 +91,16 @@ int main() {
     //  Atualiza o conteúdo do display com animações
     ssd1306_fill(&ssd, !cor);                          // Limpa o display
     ssd1306_rect(&ssd, 3, 3, 122, 60, cor, !cor);      // Desenha um retângulo
-    ssd1306_line(&ssd, 3, 25, 123, 25, cor);           // Desenha uma linha
+    ssd1306_draw_string(&ssd, "ADC", 13, 6);
+    ssd1306_draw_string(&ssd, "Resisten.", 50, 6);
+    ssd1306_line(&ssd, 44, 5, 44, 25, cor);           // linha do meio
+    ssd1306_draw_string(&ssd, str_x, 8, 15);           // ADC
+    ssd1306_draw_string(&ssd, str_y, 59, 15);          // RESISTENCIA
+    ssd1306_line(&ssd, 3, 25, 123, 25, cor);           // linha inferior
+    ssd1306_draw_string(&ssd, "E42", 8, 30);
+    ssd1306_draw_string(&ssd, str_e24, 8, 40);         // E24
+
+    /*
     ssd1306_line(&ssd, 3, 37, 123, 37, cor);           // Desenha uma linha
     ssd1306_draw_string(&ssd, "CEPEDI   TIC37", 8, 6); // Desenha uma string
     ssd1306_draw_string(&ssd, "EMBARCATECH", 20, 16);  // Desenha uma string
@@ -99,42 +110,41 @@ int main() {
     ssd1306_line(&ssd, 44, 37, 44, 60, cor);           // Desenha uma linha vertical
     ssd1306_draw_string(&ssd, str_x, 8, 52);           // Desenha uma string
     ssd1306_draw_string(&ssd, str_y, 59, 52);          // Desenha uma string
-    ssd1306_send_data(&ssd);                           // Atualiza o display
-
-    /*
-    ssd1306_rect(&ssd, 3, 3, 122, 60, cor, !cor);      // Desenha um retângulo
-    ssd1306_draw_string(&ssd, "Ohmimetro", 8, 6);
-    ssd1306_draw_string(&ssd, "ADC", 13, 41);
-    ssd1306_draw_string(&ssd, "Resisten.", 50, 41);
-    ssd1306_line(&ssd, 44, 37, 44, 60, cor);         // Desenha uma linha vertical
-    ssd1306_draw_string(&ssd, str_x, 8, 25);           // Desenha uma string
-    ssd1306_draw_string(&ssd, str_y, 59, 52);          // Desenha uma string
-    ssd1306_draw_string(&ssd, str_e24, 8, 6);          // Desenha uma string
     */
+    ssd1306_send_data(&ssd);                           // Atualiza o display
     sleep_ms(700);
   }
 }
 
 
 /**
- * @brief Encontra o valor comercial mais próximo na série E24.
+ * @brief Encontra o valor comercial mais próximo na série E24 (510Ω a 100kΩ).
  * 
  * @param resistor Valor do resistor a ser comparado.
  * @return float Valor comercial mais próximo.
  */
 float encontrar_valor_comercial(float resistor) {
-  float valor_proximo = baseE24[0];
-  float menor_diferenca = fabs(resistor - baseE24[0]);
+    float valor_proximo = 0.0;
+    float menor_diferenca = INFINITY;
 
-  for (int i = 1; i < sizeof(baseE24) / sizeof(baseE24[0]); i++) {
-      float diferenca = fabs(resistor - baseE24[i]);
-      if (diferenca < menor_diferenca) {
-          menor_diferenca = diferenca;
-          valor_proximo = baseE24[i];
-      }
-  }
+    // Multiplicadores para a faixa de 510Ω a 100kΩ
+    int multiplicadores[] = {1, 10, 100, 1000, 10000, 100000};
+    int num_multiplicadores = sizeof(multiplicadores) / sizeof(multiplicadores[0]);
 
-  return valor_proximo;
+    for (int m = 0; m < num_multiplicadores; m++) {
+        for (int i = 0; i < sizeof(baseE24) / sizeof(baseE24[0]); i++) {
+            float valor_atual = baseE24[i] * multiplicadores[m];
+            if (valor_atual >= 510 && valor_atual <= 100000) { // Restringe à faixa desejada
+                float diferenca = fabs(resistor - valor_atual);
+                if (diferenca < menor_diferenca) {
+                    menor_diferenca = diferenca;
+                    valor_proximo = valor_atual;
+                }
+            }
+        }
+    }
+
+    return valor_proximo;
 }
 
 
