@@ -46,3 +46,5 @@ make
     <td align="center"><img style="" src="https://avatars.githubusercontent.com/u/89545660?v=4" width="100px;" ><br /> <sub> <b> Naylane Ribeiro </b> </sub>
     </td>
 </table>
+
+<img width=100% src="https://capsule-render.vercel.app/api?type=waving&color=2c9ad6&height=120&section=footer"/>

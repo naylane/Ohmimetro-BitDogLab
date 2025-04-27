@@ -38,7 +38,6 @@ float baseE24[] = {
   4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1
 };
 
-char* cores[] = {"preto", "marrom", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo", "cinza", "branco"};
 
 void gera_faixa_cores(int resistor, char** faixa1, char** faixa2, char** mult);
 float encontrar_valor_comercial(float resistor);
@@ -146,54 +145,48 @@ int main() {
  * @param mult Ponteiro para armazenar a string do multiplicador.
  */
 void gera_faixa_cores(int resistor, char** faixa1, char** faixa2, char** mult) {
-    // 1. Contar quantos dígitos tem o valor do resistor.
+    char* cores[] = {"preto", "marrom", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo", "cinza", "branco"};
+
+    // conta quantos dígitos tem o valor do resistor
     int n = 0;
     int temp = resistor;
     while (temp > 0) {
         n++;
         temp /= 10;
     }
-    // Ao final, n contém o número total de dígitos de 'resistor'.
 
-    // 2. Definir o expoente do multiplicador.
-    // A ideia é representar o resistor como: <dígitos significativos> x 10^expoente.
-    // Queremos duas casas significativas, logo expoente = n - 2.
-    int expoente = n - 2;
-    if (expoente < 0) {  // Se o resistor tiver apenas 1 dígito, ajusta o expoente para 0.
+    // define o expoente do multiplicador considerando <dígitos significativos> x 10^expoente
+    int expoente = n - 2; // duas casas significativas
+    if (expoente < 0) {
         expoente = 0;
     }
 
-    // 3. Calcular o divisor que nos ajudará a isolar as duas primeiras cifras.
+    // calcula o divisor que isola as duas primeiras faixas
     int divisor = 1;
     for (int i = 0; i < expoente; i++) {
         divisor *= 10;
     }
 
-    // 4. Calcular os dois dígitos significativos (o "significand"):
-    // Divide o resistor pelo divisor e arredonda para o inteiro mais próximo.
+    // calcula os dois dígitos significativos
     int significand = (int)((float)resistor / divisor + 0.5f);
 
-    // 5. Se o arredondamento fizer o significand chegar a 100 (por exemplo, 99,6 arredonda para 100),
-    // então precisamos ajustar: usamos apenas duas casas → 100 torna-se 10 e incrementamos o expoente.
+    // se significand chegar a 100, usa apenas duas casas (100 vira 10 e incrementa o expoente)
     if (significand >= 100) {
         significand /= 10;
         expoente++;
     }
 
-    // 6. Separar o significand em dois dígitos:
-    // Por exemplo, se significand for 91, então:
-    //     primeiro dígito = 9 e segundo dígito = 1.
+    // separar o significand em dois dígitos
     int firstDigit = significand / 10;
     int secondDigit = significand % 10;
 
-    // 7. Atribuir as cores correspondentes:
-    // A 1ª faixa corresponde ao primeiro dígito.
+    // atribui as cores correspondentes
     *faixa1 = cores[firstDigit];
     // A 2ª faixa corresponde ao segundo dígito.
     *faixa2 = cores[secondDigit];
 
-    // 8. A faixa do multiplicador é dada pelo expoente (já que o multiplicador equivale a 10^expoente).
-    // Verifica se o expoente está dentro do intervalo suportado (0 a 9, pois nossa tabela possui 10 cores).
+
+    // verifica se o expoente está dentro do intervalo suportado (0 a 9)
     if (expoente < 0 || expoente > 9) {
       *mult = "Inválido";  // Caso esteja fora dos limites
     } else {
