@@ -25,7 +25,7 @@ float R_x = 0.0;            // Resistor desconhecido
 int ADC_RESOLUTION = 4095;  // Resolução do ADC (12 bits)
 ssd1306_t ssd;              // Estrutura do display
 bool cor = true;
-bool tela = 1;
+bool tela = 0;
 char *faixa1, *faixa2, *mult;
 
 // Valores comerciais E24 (5% de tolerância)
@@ -104,15 +104,18 @@ int main() {
 
     if (tela == 0) {
       ssd1306_fill(&ssd, !cor);
-      ssd1306_rect(&ssd, 3, 3, 122, 60, cor, !cor);      // Borda
-      ssd1306_draw_string(&ssd, "ADC", 13, 6);
-      ssd1306_draw_string(&ssd, "Resisten.", 50, 6);
-      ssd1306_line(&ssd, 44, 5, 44, 25, cor);            // linha do meio
-      ssd1306_draw_string(&ssd, str_x, 8, 15);           // valor do adc
-      ssd1306_draw_string(&ssd, str_y, 59, 15);          // valor do resistor
-      ssd1306_line(&ssd, 3, 25, 123, 25, cor);           // linha inferior
-      ssd1306_draw_string(&ssd, "E42:", 8, 30);
-      ssd1306_draw_string(&ssd, str_e24, 44, 30);        // valor comercial
+      ssd1306_rect(&ssd, 3, 3, 122, 60, cor, !cor);      // borda
+      ssd1306_line(&ssd, 3, 25, 123, 25, cor);           // linha de cima
+      ssd1306_draw_string(&ssd, "Ohmimetro", 28, 10);
+      ssd1306_draw_string(&ssd, "E24:", 10, 28);
+      ssd1306_draw_string(&ssd, str_e24, 48, 28);        // valor comercial
+      ssd1306_line(&ssd, 3, 37, 123, 37, cor);           // linha de baixo
+      ssd1306_draw_string(&ssd, "ADC", 13, 41);
+      ssd1306_draw_string(&ssd, "Resisten.", 50, 41);
+      ssd1306_draw_string(&ssd, str_x, 8, 52);           // valor do ADC
+      ssd1306_draw_string(&ssd, str_y, 59, 52);          // valor do resistor
+      ssd1306_line(&ssd, 44, 37, 44, 60, cor);           // linha do meio
+      
   } else {
       ssd1306_fill(&ssd, !cor);
       ssd1306_rect(&ssd, 4, 30, 70, 8, cor, !cor);       // Resistor
