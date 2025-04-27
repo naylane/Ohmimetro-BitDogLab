@@ -3,6 +3,7 @@
 #include "pico/stdlib.h"
 #include "hardware/clocks.h"
 #include "WS2812.pio.h"
+#include <string.h>
 
 #define WS2812_PIN 7
 
@@ -11,131 +12,29 @@ volatile bool update_num_matrix = false; // Flag utilizada para atualizar a matr
 
 // Buffer para números de zero a nove.
 const uint32_t numbers[][25] = {
-    // Número 0
-    0, 1, 1, 1, 0, 
-    0, 1, 0, 1, 0, 
-    0, 1, 0, 1, 0, 
-    0, 1, 0, 1, 0, 
-    0, 1, 1, 1, 0,
-    
-    // 1
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 1, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    
-    // 2
-    0, 1, 1, 1, 0,
-    0, 1, 0, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 0, 1, 0,
-    0, 1, 1, 1, 0,
-
-    // 3
-    0, 1, 1, 1, 0,
-    0, 0, 0, 1, 0,
-    0, 1, 1, 1, 0,
-    0, 0, 0, 1, 0,
-    0, 1, 1, 1, 0,
-
-    // 4
-    0, 1, 0, 0, 0,
-    0, 0, 0, 1, 0,
     0, 1, 1, 1, 0,
     0, 1, 0, 1, 0,
     0, 1, 0, 1, 0,
+    0, 1, 1, 1, 0
+};
 
-    // 5
-    0, 1, 1, 1, 0,
-    0, 0, 0, 1, 0,
-    0, 1, 1, 1, 0,
-    0, 1, 0, 0, 0,
-    0, 1, 1, 1, 0,
+const uint32_t colors[][3] = {
+    {0, 0, 0},      // Preto
+    {139, 69, 19},  // Marrom
+    {255, 0, 0},    // Vermelho
+    {255, 165, 0},  // Laranja
+    {255, 255, 0},  // Amarelo
+    {0, 128, 0},    // Verde
+    {0, 0, 255},    // Azul
+    {128, 0, 128},  // Roxo
+    {128, 128, 128},// Cinza
+    {255, 255, 255},// Branco
+    {20, 2, 10}     // Rosa
+};
 
-    // 6
-    0, 1, 1, 1, 0,
-    0, 1, 0, 1, 0,
-    0, 1, 1, 1, 0,
-    0, 1, 0, 0, 0,
-    0, 1, 1, 1, 0,
-    
-    // 7
-    0, 0, 0, 1, 0,
-    0, 1, 0, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 0, 1, 0,
-    0, 1, 1, 1, 0,
-
-    // 8
-    0, 1, 1, 1, 0,
-    0, 1, 0, 1, 0,
-    0, 1, 1, 1, 0,
-    0, 1, 0, 1, 0,
-    0, 1, 1, 1, 0,
-
-    // 9
-    0, 1, 1, 1, 0,
-    0, 0, 0, 1, 0,
-    0, 1, 1, 1, 0,
-    0, 1, 0, 1, 0,
-    0, 1, 1, 1, 0,
-
-    // rosto feliz
-    0, 1, 1, 1, 0,
-    1, 0, 0, 0, 1,
-    0, 0, 0, 0, 0,
-    0, 1, 0, 1, 0,
-    0, 1, 0, 1, 0,
-
-    // rosto triste
-    1, 0, 0, 0, 1,
-    0, 1, 1, 1, 0,
-    0, 0, 0, 0, 0,
-    0, 1, 0, 1, 0,
-    0, 1, 0, 1, 0, 
-
-    // 12 - rosto normal
-    1, 1, 1, 1, 1,
-    0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0,
-    0, 1, 0, 1, 0,
-    0, 1, 0, 1, 0,
-
-    // simbolo de adição
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    1, 0, 1, 0, 1,
-    0, 1, 1, 1, 0,
-    0, 0, 1, 0, 0,
-
-    // simbolo de subtração
-    0, 0, 1, 0, 0,
-    0, 1, 1, 1, 0,
-    1, 0, 1, 0, 1,
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-
-    // 15 - exclamação
-    0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 1, 1, 1, 0,
-    1, 1, 1, 1, 1,
-
-    // 16 - E
-    1, 1, 1, 1, 0,
-    1, 0, 0, 0, 0,
-    1, 1, 1, 1, 0,
-    1, 0, 0, 0, 0,
-    1, 1, 1, 1, 0,
-
-    // 17 - nave
-    0, 0, 1, 0, 0,
-    0, 1, 1, 1, 0,
-    1, 1, 0, 1, 1,
-    0, 1, 1, 1, 0,
-    0, 0, 1, 0, 0
+const char *color_names[] = {
+    "preto", "marrom", "vermelho", "laranja", "amarelo",
+    "verde", "azul", "roxo", "cinza", "branco", "rosa"
 };
 
 /**
@@ -147,21 +46,25 @@ const uint32_t numbers[][25] = {
  * 
  * @return Inteiro de 32 bits sem sinal.
  */
-static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
+static inline uint32_t urgb_u32(char *color_name) {
+    int8_t index = get_color_index(color_name);
+    uint8_t r, g, b;
+    r = colors[index][0];
+    g = colors[index][1];
+    b = colors[index][2];
+    
     return ((uint32_t)(r) << 8) | ((uint32_t)(g) << 16) | (uint32_t)(b);
 }
 
 
 /**
  * @brief Atualiza a matriz de LEDs com o número especificado
- * @param current_number Número a ser exibido (0-9)
+ * @param pattern Desenho a ser exibido
  * 
  * @details Envia os dados para a matriz LED WS2812 usando PIO
  */
-void set_led_matrix(uint8_t current_number, PIO pio, uint sm) {
-    // Calcula a cor utilizando a função auxiliar baseada em matrix_rgb
-    //uint32_t color = get_number_color(current_number);
-    uint32_t color = urgb_u32(20, 2, 10); // Cor rosa
+void set_pattern(PIO pio, uint sm, uint8_t pattern, char *color_name) {
+    uint32_t color = urgb_u32(color_name);
 
     for (int i = 0; i < 25; i++) {
         if (numbers[current_number][i]) {
@@ -171,6 +74,22 @@ void set_led_matrix(uint8_t current_number, PIO pio, uint sm) {
         }
     }
     sleep_us(50);
+}
+
+
+/**
+ * @brief Encontra o índice da cor correspondente ao nome fornecido.
+ * @param color Cor a ser exibida
+ * @returns O índice da cor correspondente
+ * @details Retorna -1 se a cor não for encontrada
+ */
+int get_color_index(const char *color) {
+    for (int i = 0; i < sizeof(color_names) / sizeof(color_names[0]); i++) {
+        if (strcmp(color, color_names[i]) == 0) {
+            return i; // Retorna o índice correspondente
+        }
+    }
+    return -1; // Cor não encontrada
 }
 
 
