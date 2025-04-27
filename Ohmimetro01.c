@@ -19,6 +19,9 @@
 #define WS2812_PIN 7        // GPIO para a matriz de LEDs
 #define BUTTON_A 5          // GPIO para botão A
 #define BUTTON_B 6          // GPIO para botão B
+#define DEBOUNCE_TIME 0        // Tempo para debounce (200 ms)
+static uint32_t last_time_A = 0;    // Tempo da última interrupção do botão A
+static uint32_t last_time_B = 0;    // Tempo da última interrupção do botão B
 
 int R_conhecido = 10000;    // Resistor de 10k ohm
 float R_x = 0.0;            // Resistor desconhecido
@@ -237,12 +240,20 @@ float encontrar_valor_comercial(float resistor) {
  * @param events Eventos associados à interrupção.
  */
 void btn_irq_handler(uint gpio, uint32_t events) {
+  uint32_t current_time = to_us_since_boot(get_absolute_time());
+
   if (gpio == BUTTON_A) {
-    tela = !tela; // Alterna entre as telas
-    return;
+    if (current_time - last_time_A > DEBOUNCE_TIME) {
+      tela = !tela; // Alterna entre as telas
+      last_time_A = current_time;
+      return;
+    }
   } else if (gpio == BUTTON_B) {
-    reset_usb_boot(0, 0);
-    return;
+    if (current_time - last_time_B > DEBOUNCE_TIME) {
+      reset_usb_boot(0, 0);
+      last_time_B = current_time;
+      return;
+    }
   }
 }
 
