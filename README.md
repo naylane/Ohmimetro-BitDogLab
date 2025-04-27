@@ -23,20 +23,24 @@ Sobre o projeto. A descrição completa do projeto pode ser encontrada na [Docum
 <br>
 
 ## Instruções de uso
-- É necessário instalar o SDK da Raspberry Pi Pico e realizar as configurações iniciais. [1]
+- É necessário instalar o SDK da Raspberry Pi Pico e realizar as configurações iniciais.
 
-Para ter acesso ao projeto, clone o repositório disponível na [plataforma GitHub](https://github.com/naylane/BitCrtl).
-
-Após clonar o repositório, no terminal, navegue até a pasta do projeto e execute os comandos:
+1. Para ter acesso ao projeto, **clone o repositório**:
+```bash
+git clone https://github.com/naylane/Ohmimetro-BitDogLab.git
+```
+2. Certifique de configurar o projeto, checando o ```CMakeLists.txt``` e o SDK.
+3. Compile o projeto pela extensão da Raspberry Pi Pico ou terminal. Opção pelo terminal abaixo:
 ```bash
 mkdir build && cd build
 cmake ..
-make
+make 
 ```
+4. Coloque a BitDogLab em modo BOOTSEL (pressione o botão BOOTSEL ao conectar o cabo USB).
 
 <br>
 
-## Desenvolvedora:
+## Desenvolvedora
 <table>
   <tr>
     <td align="center"><img style="" src="https://avatars.githubusercontent.com/u/89545660?v=4" width="100px;" ><br /> <sub> <b> Naylane Ribeiro </b> </sub>
