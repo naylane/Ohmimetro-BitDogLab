@@ -26,7 +26,7 @@ int ADC_RESOLUTION = 4095;  // Resolução do ADC (12 bits)
 ssd1306_t ssd;              // Estrutura do display
 bool cor = true;
 bool tela = 1;
-const char *faixa1, *faixa2, *mult;
+char *faixa1, *faixa2, *mult;
 
 // Valores comerciais E24 (5% de tolerância)
 float baseE24[] = {
@@ -35,20 +35,9 @@ float baseE24[] = {
   4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1
 };
 
-const char* cores[] = {
-  "Preto",   // 0
-  "Marrom",  // 1
-  "Vermelho",// 2
-  "Laranja", // 3
-  "Amarelo", // 4
-  "Verde",   // 5
-  "Azul",    // 6
-  "Roxo",    // 7
-  "Cinza",   // 8
-  "Branco"   // 9
-};
+char* cores[] = {"preto", "marrom", "vermelho", "laranja", "amarelo", "verde", "azul", "roxo", "cinza", "branco"};
 
-void gera_faixa_cores(int resistor, const char** faixa1, const char** faixa2, const char** mult);
+void gera_faixa_cores(int resistor, char** faixa1, char** faixa2, char** mult);
 float encontrar_valor_comercial(float resistor);
 void btn_irq_handler(uint gpio, uint32_t events);
 void setup_button(uint pin);
@@ -72,7 +61,7 @@ int main() {
   uint sm = 0;
   uint offset = pio_add_program(pio, &pio_matrix_program);
   pio_matrix_program_init(pio, sm, offset, WS2812_PIN);
-
+  clear_matrix(pio, sm);
 
   char str_x[5]; // Buffer para armazenar a string
   char str_y[5]; // Buffer para armazenar a string
@@ -99,8 +88,19 @@ int main() {
     sprintf(str_y, "%1.0f", R_x);
     sprintf(str_e24, "%1.0f", valor_comercial);
 
-    const char *faixa1, *faixa2, *mult;
+    char *faixa1, *faixa2, *mult;
     gera_faixa_cores(R_x, &faixa1, &faixa2, &mult);
+
+    set_led(1, 1, faixa1);
+    set_led(3, 2, faixa1);
+    set_led(1, 3, faixa1);
+    set_led(2, 1, faixa2);
+    set_led(2, 2, faixa2);
+    set_led(2, 3, faixa2);
+    set_led(3, 1, mult);
+    set_led(1, 2, mult);
+    set_led(3, 3, mult);
+    update_matrix(pio, sm); // Atualiza a matriz de LEDs
 
     if (tela == 0) {
       ssd1306_fill(&ssd, !cor);
@@ -139,7 +139,7 @@ int main() {
  * @param faixa2 Ponteiro para armazenar a string da 2ª faixa.
  * @param mult Ponteiro para armazenar a string do multiplicador.
  */
-void gera_faixa_cores(int resistor, const char** faixa1, const char** faixa2, const char** mult) {
+void gera_faixa_cores(int resistor, char** faixa1, char** faixa2, char** mult) {
     // 1. Contar quantos dígitos tem o valor do resistor.
     int n = 0;
     int temp = resistor;
