@@ -27,15 +27,15 @@ const uint32_t numbers[][25] = {
 
 const uint32_t colors[][3] = {
     {0, 0, 0},      // Preto
-    {139, 69, 19},  // Marrom
-    {255, 0, 0},    // Vermelho
-    {255, 165, 0},  // Laranja
-    {255, 255, 0},  // Amarelo
-    {0, 128, 0},    // Verde
-    {0, 0, 255},    // Azul
-    {128, 0, 128},  // Roxo
-    {128, 128, 128},// Cinza
-    {255, 255, 255},// Branco
+    {35, 10, 4},    // Marrom
+    {50, 0, 0},     // Vermelho
+    {40, 10, 0},    // Laranja
+    {40, 40, 0},    // Amarelo ~
+    {0, 40, 0},     // Verde
+    {0, 0, 40},     // Azul
+    {10, 0, 10},    // Roxo
+    {10, 10, 10},   // Cinza
+    {40, 40, 40},   // Branco
     {20, 2, 10}     // Rosa
 };
 
