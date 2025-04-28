@@ -22,15 +22,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(PICO_BOARD pico_w CACHE STRING "Board type")
 include(pico_sdk_import.cmake)
 
-# Define o nome do projeto como Teste_ADC_Display, suportando C, C++ e Assembly.
-project(Teste_Voltimetro C CXX ASM) 
+project(Ohmimetro C CXX ASM) 
 pico_sdk_init()
 
 
 add_executable(${PROJECT_NAME}  
-        Ohmimetro01.c  # Código principal 
-        lib/ssd1306.c  # Biblioteca para o display OLED
-        lib/WS2812.c   # Biblioteca para a matriz de LEDs
+        Ohmimetro.c
+        lib/ssd1306.c
+        lib/WS2812.c
         )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
