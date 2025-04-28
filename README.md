@@ -11,7 +11,9 @@
 ## Sobre o projeto
 O projeto simula um ohmímetro, identificando o valor do resistor medido, além de exibir o código de cores correspondente no display OLED (SSD1306) da placa BitDogLab. A descrição completa do projeto pode ser encontrada na [Ficha de proposta de projeto](docs\TrabalhoSE_FSA_1_Naylane_Ribeiro.pdf).
 
-<br>
+<div align="center"> <img src="./img\img0.jpg" width="30%">
+<p><em>Figura 1: Circuito na BitDogLaB</em></p> </div>
+
 
 ## Tecnologias e Ferramentas utilizadas
 - **Kit BitDogLab**
@@ -20,7 +22,6 @@ O projeto simula um ohmímetro, identificando o valor do resistor medido, além 
 - **Linguagem de programação:** C
 - **Ambiente de Desenvolvimento:** Visual Studio Code
 
-<br>
 
 ## Instruções de uso
 - É necessário instalar o SDK da Raspberry Pi Pico e realizar as configurações iniciais.
@@ -38,7 +39,13 @@ make
 ```
 4. Coloque a BitDogLab em modo BOOTSEL (pressione o botão BOOTSEL ao conectar o cabo USB).
 
-<br>
+### ⚠️ Observação:
+Para simular o projeto no Wokwi é necessário atribuir valores para o ADC manualmente, alterando a variável ```media```.
+<br> <div align="center">
+  <img src="./img\circuito-wokwi.png" alt="Circuito no Wokwi" width="60%">
+  <p><em>Figura 2: Circuito simulado no Wokwi</em></p>
+</div>
+
 
 ## Desenvolvedora
 <table>
