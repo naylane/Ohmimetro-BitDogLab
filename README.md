@@ -9,16 +9,15 @@
 <br>
 
 ## Sobre o projeto
-O projeto simula um ohmímetro, identificando o valor do resistor medido, além de exibir o código de cores correspondente no display OLED (SSD1306) da placa BitDogLab. A descrição completa do projeto pode ser encontrada na [Ficha de proposta de projeto](docs\TrabalhoSE_FSA_1_Naylane_Ribeiro.pdf).
+O projeto simula um ohmímetro, identificando o valor do resistor medido, além de exibir o código de cores correspondente no display OLED (SSD1306) da placa BitDogLab. A descrição completa do projeto pode ser encontrada na **[Ficha de proposta de projeto](docs\TrabalhoSE_FSA_1_Naylane_Ribeiro.pdf)**.
 
 <div align="center"> <img src="./img\img0.jpg" width="30%">
-<p><em>Figura 1: Circuito na BitDogLaB</em></p> </div>
+<p><em>Figura 1: Projeto na BitDogLaB</em></p> </div>
 
 
 ## Tecnologias e Ferramentas utilizadas
 - **Kit BitDogLab**
-- **Jumpers**: MxM e MxF
-- **Resistores**: 1/4W
+- **Adicionais**: Protoboard, jumpers (MxM e MxF) e resistores (1/4W)
 - **Linguagem de programação:** C
 - **Ambiente de Desenvolvimento:** Visual Studio Code
 
