@@ -19,7 +19,7 @@
 #define WS2812_PIN 7        // GPIO para a matriz de LEDs
 #define BUTTON_A 5          // GPIO para botão A
 #define BUTTON_B 6          // GPIO para botão B
-#define DEBOUNCE_TIME 0        // Tempo para debounce (200 ms)
+#define DEBOUNCE_TIME 200000        // Tempo para debounce (200 ms)
 static uint32_t last_time_A = 0;    // Tempo da última interrupção do botão A
 static uint32_t last_time_B = 0;    // Tempo da última interrupção do botão B
 
@@ -72,15 +72,13 @@ int main() {
   while (true) {
     adc_select_input(2); // Seleciona o ADC para eixo X. O pino 28 como entrada analógica
 
-    /*
+    
     float soma_tensao = 0.0f;
     for (int i = 0; i < 500; i++) {
       soma_tensao += adc_read();
       sleep_ms(1);
     }
     float media = soma_tensao / 500.0f;
-    */
-    float media = 2048.0f;
 
     // Fórmula simplificada: R_x = R_conhecido * ADC_encontrado /(ADC_RESOLUTION - adc_encontrado)
     R_x = (R_conhecido * media) / (ADC_RESOLUTION - media);
@@ -91,8 +89,9 @@ int main() {
     sprintf(str_e24, "%1.0f", valor_comercial);
 
     char *faixa1, *faixa2, *mult;
-    gera_faixa_cores(R_x, &faixa1, &faixa2, &mult);
+    gera_faixa_cores(valor_comercial, &faixa1, &faixa2, &mult);
 
+    // Atualiza a matriz de LEDs
     set_led(1, 1, faixa1);
     set_led(3, 2, faixa1);
     set_led(1, 3, faixa1);
@@ -102,7 +101,8 @@ int main() {
     set_led(3, 1, mult);
     set_led(1, 2, mult);
     set_led(3, 3, mult);
-    update_matrix(pio, sm); // Atualiza a matriz de LEDs
+    update_matrix(pio, sm);
+
 
     if (tela == 0) {
       ssd1306_fill(&ssd, !cor);

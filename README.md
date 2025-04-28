@@ -3,13 +3,13 @@
     <img align="right" src="./img\cepedi_logo.png" alt="Logo Embarcatech" height="90">
 </div>
 
-<h2 align="center"> Ohmimetro na BitDogLab </h2>
+<h2 align="center"> Ohmímetro na BitDogLab </h2>
 <h5 align="center"> Atividade promovida pela Residência (fase 2) do programa EmbarcaTech. </h5>
 
 <br>
 
 ## Sobre o projeto
-Sobre o projeto. A descrição completa do projeto pode ser encontrada na [Documentação](docs\TrabalhoSE_FSA_1_Naylane_Ribeiro.pdf).
+O projeto simula um ohmímetro, identificando o valor do resistor medido, além de exibir o código de cores correspondente no display OLED (SSD1306) da placa BitDogLab. A descrição completa do projeto pode ser encontrada na [Ficha de proposta de projeto](docs\TrabalhoSE_FSA_1_Naylane_Ribeiro.pdf).
 
 <br>
 
